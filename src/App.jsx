@@ -38,7 +38,7 @@ export function App () {
   }
 
   return (
-    <div className='App'>
+    <div>
       <h1>HD Wallet UD</h1>
 
       <form onSubmit={handleSubmit}>
@@ -68,7 +68,7 @@ export function App () {
         </div>
       </form>
 
-      <div style={{ overflowX: 'auto' }}>
+      <div className='table'>
         <h2>Accounts</h2>
         <table>
           <thead>
