@@ -1,9 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const generateKeys = ({ hdWallet }) => {
+  const accounts = []
+  for (let i = 0; i < 10; i++) {
+    const wallet = hdWallet.derive(i) // derive the ith account
+
+    const hdpath = `${wallet.hdpath()}`
+    const address = `0x${wallet.getAddress().toString('hex')}`
+    const privateKey = `${wallet.getPrivateKey().toString('hex')}`
+    const publicKey = `${wallet.getPublicKey().toString('hex')}`
+
+    accounts.push({ hdpath, address, privateKey, publicKey })
+  }
+
+  return accounts
+}
 
 export function App () {
   const [mnemonic, setMnemonic] = useState('tag volcano eight thank tide danger coast health above argue embrace heavy')
   const [hdPath, setHdPath] = useState(window.HDWallet.DefaultHDPath)
   const [accounts, setAccounts] = useState([])
+
+  useEffect(() => {
+    getHdWalletAccounts()
+  }, [])
 
   const handleMnemonicChange = (e) => {
     setMnemonic(e.target.value)
@@ -13,28 +33,20 @@ export function App () {
     setHdPath(e.target.value)
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!mnemonic) return
+  const getHdWalletAccounts = () => {
     const wallet = window.HDWallet.fromMnemonic(mnemonic).derive(hdPath)
     const accounts = generateKeys({ hdWallet: wallet })
     setAccounts(accounts)
   }
 
-  const generateKeys = ({ hdWallet }) => {
-    const accounts = []
-    for (let i = 0; i < 10; i++) {
-      const wallet = hdWallet.derive(i) // derive the ith account
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!mnemonic) return
+    getHdWalletAccounts()
+  }
 
-      const hdpath = `${wallet.hdpath()}`
-      const address = `0x${wallet.getAddress().toString('hex')}`
-      const privateKey = `${wallet.getPrivateKey().toString('hex')}`
-      const publicKey = `${wallet.getPublicKey().toString('hex')}`
-
-      accounts.push({ hdpath, address, privateKey, publicKey })
-    }
-
-    return accounts
+  const handleClick = ({ account }) => {
+    console.log(account)
   }
 
   return (
@@ -81,7 +93,11 @@ export function App () {
           </thead>
           <tbody>
             {accounts.map((account, i) => (
-              <tr key={i}>
+              <tr
+                key={i}
+                onClick={() => handleClick({ account: account.address })}
+                style={{ cursor: 'pointer' }}
+              >
                 <td>{account.hdpath}</td>
                 <td>{account.address}</td>
                 <td>{account.privateKey}</td>
