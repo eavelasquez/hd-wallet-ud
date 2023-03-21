@@ -1,112 +1,81 @@
+import { ethers } from 'ethers'
 import { useEffect, useState } from 'react'
+import ResolverJSON from 'uns/artifacts/Resolver.json'
+import Web3 from 'web3'
 
-const generateKeys = ({ hdWallet }) => {
-  const accounts = []
-  for (let i = 0; i < 10; i++) {
-    const wallet = hdWallet.derive(i) // derive the ith account
-
-    const hdpath = `${wallet.hdpath()}`
-    const address = `0x${wallet.getAddress().toString('hex')}`
-    const privateKey = `${wallet.getPrivateKey().toString('hex')}`
-    const publicKey = `${wallet.getPublicKey().toString('hex')}`
-
-    accounts.push({ hdpath, address, privateKey, publicKey })
-  }
-
-  return accounts
-}
+import { AccountDomain, HDWalletAccounts } from './components/AccountDomain'
 
 export function App () {
-  const [mnemonic, setMnemonic] = useState('tag volcano eight thank tide danger coast health above argue embrace heavy')
-  const [hdPath, setHdPath] = useState(window.HDWallet.DefaultHDPath)
-  const [accounts, setAccounts] = useState([])
+  const [, setSelectedAddress] = useState(null)
+  const [error, setError] = useState(null)
+  const [account, setAccount] = useState(null)
+  const stateKey = `${account}_${80001}`
+  const [data, setData] = useState({
+    [stateKey]: {
+      isFetched: false,
+      domains: []
+    }
+  })
 
   useEffect(() => {
-    getHdWalletAccounts()
+    connectToMetamask()
   }, [])
 
-  const handleMnemonicChange = (e) => {
-    setMnemonic(e.target.value)
+  const connectToMetamask = async () => {
+    try {
+      if (window.ethereum && window.ethereum.isMetaMask) {
+        window.web3 = new Web3(window.ethereum)
+        const response = await window.ethereum.request({ method: 'eth_requestAccounts' }, [])
+        const account = response[0]
+        setAccount(account)
+      } else if (window.web3) {
+        window.web3 = new Web3(window.web3.currentProvider)
+      } else {
+        window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
+      }
+    } catch (error) {
+      setError(error.message)
+    }
   }
 
-  const handleHdPathChange = (e) => {
-    setHdPath(e.target.value)
-  }
+  const updateDomainAccountRecords = async ({ address }) => {
+    try {
+      const domain = data[stateKey].domains[0]
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      console.log('provider', provider)
+      const resolver = new ethers.Contract(
+        domain.resolver,
+        ResolverJSON.abi,
+        provider.getSigner()
+      )
 
-  const getHdWalletAccounts = () => {
-    const wallet = window.HDWallet.fromMnemonic(mnemonic).derive(hdPath)
-    const accounts = generateKeys({ hdWallet: wallet })
-    setAccounts(accounts)
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!mnemonic) return
-    getHdWalletAccounts()
-  }
-
-  const handleClick = ({ account }) => {
-    console.log(account)
+      await resolver.setMany(
+        ['crypto.ETH.address'],
+        [address],
+        domain.id
+      )
+    } catch (error) {
+      setError(error.message)
+    }
   }
 
   return (
     <div>
       <h1>HD Wallet UD</h1>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor='mnemonic'>Mnemonic</label>
-          <input
-            type='text'
-            name='mnemonic'
-            id='mnemonic'
-            value={mnemonic}
-            onChange={handleMnemonicChange}
-          />
-        </div>
+      <HDWalletAccounts
+        updateSelectedAddress={setSelectedAddress}
+        updateDomainAccountRecords={updateDomainAccountRecords}
+      />
+      <hr />
+      <AccountDomain
+        account={account}
+        stateKey={stateKey}
+        data={data}
+        updateData={setData}
+      />
 
-        <div>
-          <label htmlFor='hdPath'>HD Path</label>
-          <input
-            type='text'
-            name='hdPath'
-            id='hdPath'
-            value={hdPath}
-            onChange={handleHdPathChange}
-          />
-        </div>
-        <div>
-          <button type='submit'>Generate Wallet</button>
-        </div>
-      </form>
-
-      <div className='table'>
-        <h2>Accounts</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>HD Path</th>
-              <th>Address</th>
-              <th>Private Key</th>
-              <th>Public Key</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((account, i) => (
-              <tr
-                key={i}
-                onClick={() => handleClick({ account: account.address })}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>{account.hdpath}</td>
-                <td>{account.address}</td>
-                <td>{account.privateKey}</td>
-                <td>{account.publicKey}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {error && <p>{error}</p>}
     </div>
   )
 }
