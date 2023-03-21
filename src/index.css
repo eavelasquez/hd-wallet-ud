@@ -25,5 +25,21 @@ form div {
 }
 
 .table {
+  margin: 2rem 0;
   overflow-x: auto;
+}
+
+.container {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+hr {
+  margin: 2rem 0;
+}
+
+pre {
+  margin: 0.5rem 0;
 }
