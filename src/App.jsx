@@ -61,7 +61,7 @@ export function App () {
 
   return (
     <div>
-      <h1>HD Wallet UD</h1>
+      <h1>HD Wallet UD Demo</h1>
 
       <HDWalletAccounts
         updateSelectedAddress={setSelectedAddress}

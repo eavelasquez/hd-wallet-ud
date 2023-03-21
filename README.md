@@ -1,10 +1,10 @@
-# HD Wallet UD
+# HD Wallet UD Demo
 
 This is a simple HD Wallet implementation in JavaScript and integrated with the Unstoppable Domains.
 
 ## Preview
 
-![HD Wallet UD](./.github/hd-wallet-ud.png)
+![HD Wallet UD Demo](./.github/hd-wallet-ud-demo.png)
 
 ## Development
 
