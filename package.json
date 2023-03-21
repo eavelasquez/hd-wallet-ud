@@ -10,13 +10,13 @@
     "lint": "standard --fix"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.10",
-    "ethers": "^5.7.2",
-    "graphql": "^16.6.0",
+    "@apollo/client": "3.7.10",
+    "ethers": "5.7.2",
+    "graphql": "16.6.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "uns": "https://github.com/unstoppabledomains/uns#v0.6.20",
-    "web3": "^1.8.2"
+    "web3": "1.8.2"
   },
   "devDependencies": {
     "@types/react": "18.0.27",
