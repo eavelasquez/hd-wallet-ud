@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import ResolverJSON from 'uns/artifacts/Resolver.json'
 import Web3 from 'web3'
 
-import { AccountDomain, HDWalletAccounts } from './components/AccountDomain'
+import { AccountDomain, HDWalletAccounts } from './components'
 
 export function App () {
   const [, setSelectedAddress] = useState(null)
